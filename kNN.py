@@ -1,0 +1,52 @@
+from numpy import *
+import operator 
+
+# create a dataset for testing
+def createDataSet():
+    group = array([[1.0, 1.1], [1.0, 1.0], [0, 0], [0, 0.1]])
+    labels = ['A', 'A', 'B', 'B']
+    return group, labels
+
+# kNN algorithm
+def classify0(inX, dataSet, labels, k):
+    # calculate the distance 
+    dataSetSize = dataSet.shape[0]
+    diffMat = tile(inX, (dataSetSize, 1)) - dataSet
+    sqDiffMat = diffMat**2
+    print(sqDiffMat)
+    sqDistances = sqDiffMat.sum(axis=1)
+    print(sqDistances)
+    distances = sqDistances**0.5
+    
+    # choose shortest k points
+    sortedDistIndicies = distances.argsort()
+    classCount = {}
+    for i in range(k):
+        voteIlabel = labels[sortedDistIndicies[i]]
+        classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
+    
+    # sort
+    sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse = True)
+
+    return sortedClassCount[0][0]
+
+# turn the file's data into matrix
+def file2matrix(filename):
+    fr = open(filename)
+    arrayOLines = fr.readlines()
+    numberOfLines = len(arrayOLines)
+    returnMat = zeros((numberOfLines, 3))
+    classLabelVector = []
+    index = 0
+
+    for line in arrayOLines:
+        line = line.strip()
+        listFromLine = line.split('\t')
+        returnMat[index,:] = listFromLine[0:3]
+        classLabelVector.append(int(listFromLine[-1]))
+        index += 1
+
+    return returnMat, classLabelVector
+
+
+
